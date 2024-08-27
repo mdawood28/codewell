@@ -1,0 +1,33 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  SITE_DIR: "public"
+
+build:
+  stage: build
+  script:
+    - echo "Building the static website..."
+    - mkdir -p $SITE_DIR
+    - cp -r * $SITE_DIR
+
+test:
+  stage: test
+  script:
+    - echo "Running HTML and CSS validation..."
+    - apt-get update && apt-get install -y curl tidy
+    - tidy -errors -q index.html
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to GitLab Pages..."
+    - mkdir -p public
+    - cp -r * public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
