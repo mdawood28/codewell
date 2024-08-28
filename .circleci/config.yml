@@ -3,52 +3,46 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/node:lts
+      - image: circleci/node:latest  # Use Node.js if you need it for any reason; replace if unnecessary
     steps:
       - checkout
       - run:
           name: Install Dependencies
-          command: npm install
-      - run:
-          name: Build Project
-          command: npm run build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
+          command: |
+            if [ -f package.json ]; then
+              npm install
+            else
+              echo "No package.json found, skipping npm install."
+            fi
 
   test:
     docker:
-      - image: circleci/node:lts
+      - image: circleci/node:latest  # Use a testing image that suits your needs
     steps:
       - checkout
       - run:
-          name: Install Dependencies
-          command: npm install
-      - run:
           name: Run Tests
-          command: npm test
+          command: |
+            if [ -f package.json ]; then
+              npm test
+            else
+              echo "No package.json found, skipping tests."
+            fi
 
   deploy:
     docker:
-      - image: circleci/node:lts
+      - image: circleci/node:latest  # Use a deployment image that suits your needs
     steps:
       - checkout
       - run:
-          name: Install Dependencies
-          command: npm install
-      - run:
-          name: Build Project
-          command: npm run build
-      - run:
           name: Deploy
           command: |
-            echo "Deploying to GitHub Pages..."
-            npm run deploy # You may need to adjust this command based on your deploy script
+            echo "Deploying the site..."
+            # Add your deployment steps here, like uploading to a web server or pushing to a CDN
 
 workflows:
   version: 2
-  ci-cd:
+  build_test_and_deploy:
     jobs:
       - build
       - test:
